@@ -68,6 +68,9 @@ public class CustomEventBannerAdapter implements CustomEventBannerListener {
         if (isInvalidated() || mCustomEventBanner == null) {
             return;
         }
+        if(mMoPubView != null) {
+        	mLocalExtras.put("activity", mMoPubView.getActivity());
+        }
         mCustomEventBanner.loadBanner(mContext, this, mLocalExtras, mServerExtras);
 
         if (getTimeoutDelayMilliseconds() > 0) {

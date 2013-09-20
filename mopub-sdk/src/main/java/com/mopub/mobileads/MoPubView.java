@@ -76,6 +76,7 @@ public class MoPubView extends FrameLayout {
     protected CustomEventBannerAdapter mCustomEventBannerAdapter;
 
     private Context mContext;
+    private Activity mActivity;
     private BroadcastReceiver mScreenStateReceiver;
     private boolean mIsInForeground;
     private LocationAwareness mLocationAwareness;
@@ -347,7 +348,15 @@ public class MoPubView extends FrameLayout {
     }
 
     public Activity getActivity() {
-        return (Activity) mContext;
+    	if(mActivity != null) return mActivity;
+    	if(mContext != null && mContext instanceof Activity) {
+    		return (Activity) mContext;
+    	}
+    	return null;
+    }
+
+    public void setActivity(Activity aActivity) {
+    	mActivity = aActivity;
     }
 
     public void setBannerAdListener(BannerAdListener listener) {
