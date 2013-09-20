@@ -2,6 +2,8 @@ package com.mopub.mobileads;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import com.inmobi.androidsdk.IMAdInterstitial;
 import com.inmobi.androidsdk.IMAdInterstitialListener;
@@ -41,7 +43,16 @@ class InMobiInterstitial extends CustomEventInterstitial implements IMAdIntersti
         }
         
         String appId = serverExtras.get("app_id");
+        if(appId == null) {
+        	try {
+	        	ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(),PackageManager.GET_META_DATA);
+	            appId = ai.metaData.get("inmobi_interstitial_ads_app_id").toString();
+        	} catch(Throwable t) {
+        		Log.e("MoPub", "Could not find inmobi_interstitial_ads_app_id in meta-data in Android manifest");
+        	}
+        }
         if(appId == null || appId.length() == 0) {
+            Log.d("MoPub", "InMobi interstitial ad app_id is missing.");
         	if(mInterstitialListener != null) {
         		mInterstitialListener.onInterstitialFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
         	}
