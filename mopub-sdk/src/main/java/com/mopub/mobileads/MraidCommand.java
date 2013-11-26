@@ -1,17 +1,54 @@
+/*
+ * Copyright (c) 2010-2013, MoPub Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *  Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ *  Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ *  Neither the name of 'MoPub Inc.' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.mopub.mobileads;
 
 import android.util.Log;
 
-import java.util.Map;
+import java.util.*;
 
-import static com.mopub.mobileads.MraidCommandRegistry.MRAID_JAVASCRIPT_COMMAND_PLAY_VIDEO;
-import static com.mopub.mobileads.MraidCommandRegistry.MRAID_JAVASCRIPT_COMMAND_STORE_PICTURE;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.GET_RESIZE_PROPERTIES;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.OPEN;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.PLAY_VIDEO;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.RESIZE;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.SET_RESIZE_PROPERTIES;
+import static com.mopub.mobileads.MraidCommandFactory.MraidJavascriptCommand.STORE_PICTURE;
+import static com.mopub.mobileads.MraidView.PlacementType;
 
 abstract class MraidCommand {
     protected static final String URI_KEY = "uri";
     protected Map<String, String> mParams;
     protected MraidView mView;
-    
+
     MraidCommand(Map<String, String> params, MraidView view) {
         mParams = params;
         mView = view;
@@ -51,6 +88,9 @@ abstract class MraidCommand {
         return "true".equals(mParams.get(key));
     }
 
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        return false;
+    }
 }
 
 class MraidCommandPlayVideo extends MraidCommand {
@@ -64,7 +104,19 @@ class MraidCommandPlayVideo extends MraidCommand {
         if (url != null && !url.equals("")){
             mView.getDisplayController().showVideo(url);
         } else {
-            mView.fireErrorEvent(MRAID_JAVASCRIPT_COMMAND_PLAY_VIDEO, "Video can't be played with null or empty URL");
+            mView.fireErrorEvent(PLAY_VIDEO, "Video can't be played with null or empty URL");
+        }
+    }
+
+    @Override
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        switch (placementType) {
+            case INLINE:
+                return true;
+            case INTERSTITIAL:
+                return false;
+            default:
+                return super.isCommandDependentOnUserClick(placementType);
         }
     }
 }
@@ -83,10 +135,14 @@ class MraidCommandStorePicture extends MraidCommand {
         if (url != null && !url.equals("")) {
             mView.getDisplayController().showUserDownloadImageAlert(url);
         } else {
-            mView.fireErrorEvent(MRAID_JAVASCRIPT_COMMAND_STORE_PICTURE, "Image can't be stored with null or empty URL");
+            mView.fireErrorEvent(STORE_PICTURE, "Image can't be stored with null or empty URL");
             Log.d("MoPub", "Invalid URI for Mraid Store Picture.");
-            return;
         }
+    }
+
+    @Override
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        return true;
     }
 }
 
@@ -95,6 +151,7 @@ class MraidCommandClose extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().close();
     }
@@ -105,6 +162,7 @@ class MraidCommandExpand extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         int width = getIntFromParamsForKey("w");
         int height = getIntFromParamsForKey("h");
@@ -118,6 +176,18 @@ class MraidCommandExpand extends MraidCommand {
         mView.getDisplayController().expand(url, width, height, shouldUseCustomClose,
                 shouldLockOrientation);
     }
+
+    @Override
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        switch (placementType) {
+            case INLINE:
+                return true;
+            case INTERSTITIAL:
+                return false;
+            default:
+                return super.isCommandDependentOnUserClick(placementType);
+        }
+    }
 }
 
 class MraidCommandUseCustomClose extends MraidCommand {
@@ -125,6 +195,7 @@ class MraidCommandUseCustomClose extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         boolean shouldUseCustomClose = getBooleanFromParamsForKey("shouldUseCustomClose");
         mView.getDisplayController().useCustomClose(shouldUseCustomClose);
@@ -136,9 +207,19 @@ class MraidCommandOpen extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         String url = getStringFromParamsForKey("url");
+        if (url == null) {
+            mView.fireErrorEvent(OPEN, "Url can not be null.");
+            return;
+        }
         mView.getBrowserController().open(url);
+    }
+
+    @Override
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        return true;
     }
 }
 
@@ -148,8 +229,9 @@ class MraidCommandResize extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
-        mView.fireErrorEvent(MraidCommandRegistry.MRAID_JAVASCRIPT_COMMAND_RESIZE, "Unsupported action resize.");
+        mView.fireErrorEvent(RESIZE, "Unsupported action resize.");
     }
 }
 
@@ -158,8 +240,9 @@ class MraidCommandGetResizeProperties extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
-        mView.fireErrorEvent(MraidCommandRegistry.MRAID_JAVASCRIPT_COMMAND_GET_RESIZE_PROPERTIES, "Unsupported action getResizeProperties.");
+        mView.fireErrorEvent(GET_RESIZE_PROPERTIES, "Unsupported action getResizeProperties.");
     }
 }
 
@@ -168,8 +251,9 @@ class MraidCommandSetResizeProperties extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
-        mView.fireErrorEvent(MraidCommandRegistry.MRAID_JAVASCRIPT_COMMAND_SET_RESIZE_PROPERTIES, "Unsupported action setResizeProperties.");
+        mView.fireErrorEvent(SET_RESIZE_PROPERTIES, "Unsupported action setResizeProperties.");
     }
 }
 
@@ -178,6 +262,7 @@ class MraidCommandGetCurrentPosition extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().getCurrentPosition();
     }
@@ -189,6 +274,7 @@ class MraidCommandGetDefaultPosition extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().getDefaultPosition();
     }
@@ -199,6 +285,7 @@ class MraidCommandGetMaxSize extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().getMaxSize();
     }
@@ -209,6 +296,7 @@ class MraidCommandGetScreenSize extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().getScreenSize();
     }
@@ -219,8 +307,14 @@ class MraidCommandCreateCalendarEvent extends MraidCommand {
         super(params, view);
     }
 
+    @Override
     void execute() {
         mView.getDisplayController().createCalendarEvent(mParams);
+    }
+
+    @Override
+    protected boolean isCommandDependentOnUserClick(PlacementType placementType) {
+        return true;
     }
 }
 

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2010, MoPub Inc.
+ * Copyright (c) 2010-2013, MoPub Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
  *
- * * Redistributions of source code must retain the above copyright
+ *  Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright
+ *  Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
  *
- * * Neither the name of 'MoPub Inc.' nor the names of its contributors
+ *  Neither the name of 'MoPub Inc.' nor the names of its contributors
  *   may be used to endorse or promote products derived from this software
  *   without specific prior written permission.
  *
@@ -36,15 +36,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Utils {
     private Utils() {
@@ -64,47 +59,9 @@ public class Utils {
         } catch (NoSuchAlgorithmException e) {
             return "";
         }
-    }
-
-    public static Map<String, String> jsonStringToMap(String jsonParams) throws Exception {
-        Map<String, String> jsonMap = new HashMap<String, String>();
-
-        if (jsonParams == null || jsonParams.equals("")) return jsonMap;
-
-        JSONObject jsonObject = (JSONObject) new JSONTokener(jsonParams).nextValue();
-        Iterator<?> keys = jsonObject.keys();
-
-        while (keys.hasNext()) {
-            String key = (String) keys.next();
-            jsonMap.put(key, jsonObject.getString(key));
+        catch (NullPointerException e) {
+            return "";
         }
-
-        return jsonMap;
-    }
-
-    public static String mapToJsonString(Map<String, String> map) {
-        if (map == null) {
-            return "{}";
-        }
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("{");
-        boolean first = true;
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (!first) {
-                builder.append(",");
-            }
-            builder.append("\"");
-            builder.append(entry.getKey());
-            builder.append("\":\"");
-            builder.append(entry.getValue());
-            builder.append("\"");
-            first = false;
-        }
-
-        builder.append("}");
-        return builder.toString();
     }
 
     public static boolean deviceCanHandleIntent(Context context, Intent intent) {

@@ -1,18 +1,50 @@
+/*
+ * Copyright (c) 2010-2013, MoPub Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *  Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ *  Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ *  Neither the name of 'MoPub Inc.' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.mopub.mobileads;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.mopub.mobileads.factories.HttpClientFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import static com.mopub.mobileads.util.HttpResponses.extractHeader;
+import static com.mopub.mobileads.util.ResponseHeader.AD_TYPE;
+import static com.mopub.mobileads.util.ResponseHeader.USER_AGENT;
+import static com.mopub.mobileads.util.ResponseHeader.WARMUP;
 
 public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
     private TaskTracker mTaskTracker;
@@ -30,7 +62,7 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
         mTaskTracker = taskTracker;
 
         mAdViewController = adViewController;
-        mHttpClient = getDefaultHttpClient(timeoutMilliseconds);
+        mHttpClient = HttpClientFactory.create(timeoutMilliseconds);
         mTaskId = mTaskTracker.getCurrentTaskId();
         mUserAgent = userAgent;
     }
@@ -50,7 +82,7 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
 
     private AdLoadTask fetch(String url) throws Exception {
         HttpGet httpget = new HttpGet(url);
-        httpget.addHeader(AdFetcher.USER_AGENT_HEADER, mUserAgent);
+        httpget.addHeader(USER_AGENT.getKey(), mUserAgent);
 
         if (!isStateValid()) return null;
 
@@ -67,7 +99,7 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
 
     private boolean responseContainsContent(HttpResponse response) {
         // Ensure that the ad is not warming up.
-        if ("1".equals(extractHeader(response, AdFetcher.WARMUP_HEADER))) {
+        if ("1".equals(extractHeader(response, WARMUP))) {
             Log.d("MoPub", "Ad Unit (" + mAdViewController.getAdUnitId() + ") is still warming up. " +
                     "Please try again in a few minutes.");
             mFetchStatus = AdFetcher.FetchStatus.AD_WARMING_UP;
@@ -75,7 +107,7 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
         }
 
         // Ensure that the ad type header is valid and not "clear".
-        String adType = extractHeader(response, AdFetcher.AD_TYPE_HEADER);
+        String adType = extractHeader(response, AD_TYPE);
         if ("clear".equals(adType)) {
             Log.d("MoPub", "No inventory found for adunit (" + mAdViewController.getAdUnitId() + ").");
             mFetchStatus = AdFetcher.FetchStatus.CLEAR_AD_TYPE;
@@ -233,22 +265,6 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
         mFetchStatus = AdFetcher.FetchStatus.NOT_SET;
     }
 
-    private DefaultHttpClient getDefaultHttpClient(int timeoutMilliseconds) {
-        HttpParams httpParameters = new BasicHttpParams();
-
-        if (timeoutMilliseconds > 0) {
-            // Set timeouts to wait for connection establishment / receiving data.
-            HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutMilliseconds);
-            HttpConnectionParams.setSoTimeout(httpParameters, timeoutMilliseconds);
-        }
-
-        // Set the buffer size to avoid OutOfMemoryError exceptions on certain HTC devices.
-        // http://stackoverflow.com/questions/5358014/android-httpclient-oom-on-4g-lte-htc-thunderbolt
-        HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
-
-        return new DefaultHttpClient(httpParameters);
-    }
-
     private void shutdownHttpClient() {
         if (mHttpClient != null) {
             ClientConnectionManager manager = mHttpClient.getConnectionManager();
@@ -260,6 +276,7 @@ public class AdFetchTask extends AsyncTask<String, Void, AdLoadTask> {
     }
 
     private boolean isMostCurrentTask() {
-        return mTaskTracker.isMostCurrentTask(mTaskId);
+        // if we've been cleaned up already, then we're definitely not the current task
+        return (mTaskTracker == null) ? false : mTaskTracker.isMostCurrentTask(mTaskId);
     }
 }
