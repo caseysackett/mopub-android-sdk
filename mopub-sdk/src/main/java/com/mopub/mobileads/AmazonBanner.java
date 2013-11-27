@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.view.ViewGroup.LayoutParams;
 
 import com.amazon.device.ads.AdError;
 import com.amazon.device.ads.AdLayout;
@@ -15,6 +16,7 @@ import com.amazon.device.ads.AdProperties;
 import com.amazon.device.ads.AdRegistration;
 import com.amazon.device.ads.AdSize;
 import com.amazon.device.ads.AdTargetingOptions;
+import com.amazon.device.ads.AdTargetingOptions.Gender;
 
 /*
  * Tested with Amazon SDK 4.0.8
@@ -63,7 +65,7 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
         	}
         }
         if(appId == null) {
-            Log.d("MoPub", "Amazon banner ad app_id is missing.");
+        	Log.e("AmazonBanner", "app_id is null");
         	if(mBannerListener != null) {
         		mBannerListener.onBannerFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
         	}
@@ -71,12 +73,19 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
         }
         
         AdRegistration.setAppKey(appId);
-        //AdRegistration.enableTesting(context, true);
-        //AdRegistration.enableLogging(context, true);
+        //AdRegistration.enableTesting(true);
+        //AdRegistration.enableLogging(true);
         
         mAmazonAdView = new AdLayout(activity, adSize);
         mAmazonAdView.setListener(this);
-        mAmazonAdView.loadAd(new AdTargetingOptions()); // async task to retrieve an ad    
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        mAmazonAdView.setLayoutParams(layoutParams);
+        
+        AdTargetingOptions adTargetingOptions = new AdTargetingOptions();
+        adTargetingOptions.enableGeoLocation(true);
+        adTargetingOptions.setGender(Gender.FEMALE);
+        
+        mAmazonAdView.loadAd(adTargetingOptions); // async task to retrieve an ad    
     }
 
     @Override
@@ -88,12 +97,11 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
 
 	@Override
 	public void onAdCollapsed(AdLayout arg0) {
-		Log.d("MoPub", "Amazon banner ad modal dismissed.");
+		//Log.d("MoPub", "Amazon banner ad modal dismissed.");
 	}
 
 	@Override
 	public void onAdExpanded(AdLayout arg0) {
-		Log.d("MoPub", "Amazon banner ad clicked.");
 	  	if(mBannerListener != null) {
 	  		mBannerListener.onBannerExpanded();
 	  	}
@@ -101,7 +109,6 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
 
 	@Override
 	public void onAdFailedToLoad(AdLayout arg0, AdError arg1) {
-		Log.d("MoPub", "Amazon banner ad failed to load.");
 	  	if(mBannerListener != null) {
 	  		mBannerListener.onBannerFailed(MoPubErrorCode.NETWORK_NO_FILL);
 	  	}
@@ -110,9 +117,10 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
 	@Override
 	public void onAdLoaded(AdLayout arg0, AdProperties arg1) {
 		if (mAmazonAdView != null && mBannerListener != null) {
-			Log.d("MoPub", "Amazon banner ad loaded successfully. Showing ad...");
+			//Log.d("MoPub", "Amazon banner ad loaded successfully. Showing ad...");
 			mBannerListener.onBannerLoaded(mAmazonAdView);
 		} else if (mBannerListener != null) {
+	    	//Log.e("AmazonBanner", "Ad Loaded but banner listener is null");
 			mBannerListener.onBannerFailed(MoPubErrorCode.NETWORK_INVALID_STATE);
 		}
 	}
