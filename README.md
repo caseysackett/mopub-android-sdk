@@ -27,13 +27,11 @@ Integration instructions are available on the [wiki](https://github.com/mopub/mo
 
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for details.
 
-  - Support for VAST 2.0 video playback via MoPub Marketplace
-    - Short videos (less than 15 seconds) autoplay and and are unskippable
-    - Longer videos autoplay and are skippable after 5 seconds
-  - Updated InMobi custom event support to 4.0.0
-  - Added custom events for video ad network mediation, which can be found in the extras directory of the SDK (`/extras/src/com/mopub/mobileads/`)
-    - Added the `AdColonyInterstitial` custom event
-    - Added the `VungleInterstitial` custom event
+  - Updated InMobi custom events
+  - Bug fixes
+
+### Changes to InMobi Custom Event Integrations
+**Important**: As of version 1.17.2.0, the InMobi custom events packaged with the MoPub SDK only support InMobi version 4.0.3 and up. Follow the instructions [here](https://www.inmobi.com/support/integration/23817448/22051163/android-sdk-integration-guide/) to integrate InMobi version 4.0.3 and up. If you would like to continue to use a prior version of the InMobi SDK, do not update the custom event files and follow the instructions [here](https://www.inmobi.com/support/art/23806682/22095493/mopub-adaptor-android-sdk-integration-guide/) to integrate.
 
 ## Requirements
 

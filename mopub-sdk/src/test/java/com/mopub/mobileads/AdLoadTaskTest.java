@@ -32,6 +32,7 @@
 
 package com.mopub.mobileads;
 
+import com.mopub.mobileads.test.support.JsonUtils;
 import com.mopub.mobileads.test.support.SdkTestRunner;
 import com.mopub.mobileads.test.support.TestHttpResponseWithHeaders;
 import org.apache.http.Header;
@@ -41,11 +42,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.mopub.mobileads.AdTypeTranslator.ADMOB_BANNER;
-import static com.mopub.mobileads.AdTypeTranslator.HTML_BANNER;
-import static com.mopub.mobileads.AdTypeTranslator.HTML_INTERSTITIAL;
-import static com.mopub.mobileads.AdTypeTranslator.MRAID_BANNER;
-import static com.mopub.mobileads.AdTypeTranslator.MRAID_INTERSTITIAL;
+import static com.mopub.mobileads.AdTypeTranslator.CustomEventType.ADMOB_BANNER;
+import static com.mopub.mobileads.AdTypeTranslator.CustomEventType.HTML_BANNER;
+import static com.mopub.mobileads.AdTypeTranslator.CustomEventType.HTML_INTERSTITIAL;
+import static com.mopub.mobileads.AdTypeTranslator.CustomEventType.MRAID_BANNER;
+import static com.mopub.mobileads.AdTypeTranslator.CustomEventType.MRAID_INTERSTITIAL;
 import static com.mopub.mobileads.util.ResponseHeader.AD_TYPE;
 import static com.mopub.mobileads.util.ResponseHeader.CLICKTHROUGH_URL;
 import static com.mopub.mobileads.util.ResponseHeader.CUSTOM_EVENT_DATA;
@@ -64,12 +65,11 @@ public class AdLoadTaskTest {
     private AdViewController adViewController;
     private HttpResponse response;
     private String standardExpectedJson;
-    private AdConfiguration adConfiguration;
 
     @Before
     public void setup() {
         adViewController = mock(AdViewController.class);
-        adConfiguration = mock(AdConfiguration.class);
+        AdConfiguration adConfiguration = mock(AdConfiguration.class);
         stub(adViewController.getAdConfiguration()).toReturn(adConfiguration);
         response = new TestHttpResponseWithHeaders(200, "");
         standardExpectedJson = "{\"Scrollable\":\"false\",\"Redirect-Url\":\"redirect\",\"Clickthrough-Url\":\"clickthrough\",\"Html-Response-Body\":\"%3Chtml%3E%3C%2Fhtml%3E\"}";
@@ -110,8 +110,10 @@ public class AdLoadTaskTest {
         addExpectedResponseHeaders("mraid");
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(MRAID_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(standardExpectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(MRAID_BANNER.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, standardExpectedJson);
     }
 
     @Test
@@ -122,8 +124,10 @@ public class AdLoadTaskTest {
         stub(adViewController.getMoPubView()).toReturn(mock(MoPubInterstitial.MoPubInterstitialView.class));
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(MRAID_INTERSTITIAL);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(standardExpectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(MRAID_INTERSTITIAL.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, standardExpectedJson);
     }
 
     @Test
@@ -133,8 +137,10 @@ public class AdLoadTaskTest {
         response.addHeader(NATIVE_PARAMS.getKey(), expectedNativeParams);
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(ADMOB_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(expectedNativeParams);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(ADMOB_BANNER.toString());
+
+        String actualNativeParams = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualNativeParams, expectedNativeParams);
     }
 
     @Test
@@ -144,8 +150,10 @@ public class AdLoadTaskTest {
         addExpectedResponseHeaders("html");
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(standardExpectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, standardExpectedJson);
     }
 
     @Test
@@ -156,8 +164,10 @@ public class AdLoadTaskTest {
         stub(adViewController.getMoPubView()).toReturn(mock(MoPubInterstitial.MoPubInterstitialView.class));
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_INTERSTITIAL);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(standardExpectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_INTERSTITIAL.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, standardExpectedJson);
     }
 
     @Test
@@ -173,8 +183,10 @@ public class AdLoadTaskTest {
         response.addHeader(AD_TYPE.getKey(), "html");
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(expectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, expectedJson);
     }
 
     @Test
@@ -185,8 +197,10 @@ public class AdLoadTaskTest {
 
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(expectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, expectedJson);
     }
 
     @Test
@@ -195,8 +209,10 @@ public class AdLoadTaskTest {
         response.addHeader(AD_TYPE.getKey(), "html");
 
         AdLoadTask.CustomEventAdLoadTask customEventTask = (AdLoadTask.CustomEventAdLoadTask) AdLoadTask.fromHttpResponse(response, adViewController);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER);
-        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey())).isEqualTo(expectedJson);
+        assertThat(customEventTask.getParamsMap().get(CUSTOM_EVENT_NAME.getKey())).isEqualTo(HTML_BANNER.toString());
+
+        String actualJsonData = customEventTask.getParamsMap().get(CUSTOM_EVENT_DATA.getKey());
+        JsonUtils.assertJsonStringMapsEqual(actualJsonData, expectedJson);
     }
 
     private void addExpectedResponseHeaders(String adType) {
