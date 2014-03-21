@@ -1,20 +1,18 @@
-package com.mopub.mobileads;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.mopub.simpleadsdemo;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.util.Log;
-
 import com.inmobi.commons.InMobi;
 import com.inmobi.commons.InMobi.LOG_LEVEL;
 import com.inmobi.monetization.IMBanner;
 import com.inmobi.monetization.IMBannerListener;
 import com.inmobi.monetization.IMErrorCode;
+import com.mopub.mobileads.CustomEventBanner;
+import com.mopub.mobileads.MoPub;
+import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.util.Views;
+
+import java.util.*;
 
 /*
  * Tested with InMobi SDK 4.1.1
@@ -26,40 +24,21 @@ public class InMobiBanner extends CustomEventBanner implements IMBannerListener 
 			CustomEventBannerListener bannerListener,
 			Map<String, Object> localExtras, Map<String, String> serverExtras) {
 		mBannerListener = bannerListener;
+		String inMobiAppId = "YOUR_INMOBI_APP_ID";
 
 		Activity activity = null;
-        if (context instanceof Activity) {
-            activity = (Activity) context;
-        } else {
-        	activity = (Activity)localExtras.get("activity");
-        }
-        
-        if (activity == null) {
-        	if(mBannerListener != null) {
-        		mBannerListener.onBannerFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
-        	}
-            return;
-        }
-        
-        String appId = serverExtras.get("app_id");
-        if(appId == null) {
-        	try {
-	        	ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(),PackageManager.GET_META_DATA);
-	            appId = ai.metaData.get("inmobi_ads_app_id").toString();
-        	} catch(Throwable t) {
-        		Log.e("MoPub", "Could not find inmobi_ads_app_id in meta-data in Android manifest");
-        	}
-        }
-        if(appId == null || appId.length() == 0) {
-            Log.d("MoPub", "InMobi banner ad app_id is missing.");
-        	if(mBannerListener != null) {
-        		mBannerListener.onBannerFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
-        	}
-        	return;
-        }
-        
+		if (context instanceof Activity) {
+			activity = (Activity) context;
+		} else {
+			// You may also pass in an Activity Context in the localExtras map
+			// and retrieve it here.
+		}
+		if (activity == null) {
+			mBannerListener.onBannerFailed(null);
+			return;
+		}
 		if (!isAppInitialized) {
-			InMobi.initialize(activity, appId);
+			InMobi.initialize(activity, inMobiAppId);
             isAppInitialized = true;
 		}
 
@@ -67,7 +46,8 @@ public class InMobiBanner extends CustomEventBanner implements IMBannerListener 
 		 * You may also pass this String down in the serverExtras Map by
 		 * specifying Custom Event Data in MoPub's web interface.
 		 */
-		iMBanner = new IMBanner(activity, appId, IMBanner.INMOBI_AD_UNIT_320X50);
+		iMBanner = new IMBanner(activity, inMobiAppId,
+				IMBanner.INMOBI_AD_UNIT_320X50);
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("tp", "c_mopub");

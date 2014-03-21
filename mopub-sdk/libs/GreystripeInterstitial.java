@@ -1,4 +1,4 @@
-package com.mopub.mobileads;
+package com.mopub.simpleadsdemo;
 
 import android.content.Context;
 import android.util.Log;

@@ -1,18 +1,16 @@
-package com.mopub.mobileads;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.mopub.simpleadsdemo;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.util.Log;
-
 import com.inmobi.commons.InMobi;
 import com.inmobi.monetization.IMErrorCode;
 import com.inmobi.monetization.IMInterstitial;
 import com.inmobi.monetization.IMInterstitialListener;
+import com.mopub.mobileads.CustomEventInterstitial;
+import com.mopub.mobileads.MoPub;
+import com.mopub.mobileads.MoPubErrorCode;
+
+import java.util.*;
 
 /*
  * Tested with InMobi SDK  4.1.1
@@ -24,45 +22,30 @@ public class InMobiInterstitial extends CustomEventInterstitial implements IMInt
 			CustomEventInterstitialListener interstitialListener,
 			Map<String, Object> localExtras, Map<String, String> serverExtras) {
 		mInterstitialListener = interstitialListener;
+		String inMobiAppId = "YOUR_INMOBI_APP_ID";
 
 		Activity activity = null;
-        if (context instanceof Activity) {
-            activity = (Activity) context;
-        } else {
-        	 activity = (Activity)localExtras.get("activity");
-        }
-        
-        if (activity == null) {
-            mInterstitialListener.onInterstitialFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
-            return;
-        }
-        
-        String appId = serverExtras.get("app_id");
-        if(appId == null) {
-        	try {
-	        	ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(),PackageManager.GET_META_DATA);
-	            appId = ai.metaData.get("inmobi_interstitial_ads_app_id").toString();
-        	} catch(Throwable t) {
-        		Log.e("MoPub", "Could not find inmobi_interstitial_ads_app_id in meta-data in Android manifest");
-        	}
-        }
-        if(appId == null || appId.length() == 0) {
-            Log.d("MoPub", "InMobi interstitial ad app_id is missing.");
-        	if(mInterstitialListener != null) {
-        		mInterstitialListener.onInterstitialFailed(MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR);
-        	}
-        	return;
-        }		
-		
+		if (context instanceof Activity) {
+			activity = (Activity) context;
+		} else {
+			// You may also pass in an Activity Context in the localExtras map
+			// and retrieve it here.
+		}
+
+		if (activity == null) {
+			mInterstitialListener.onInterstitialFailed(MoPubErrorCode.UNSPECIFIED);
+			return;
+		}
+
 		/*
 		 * You may also pass this String down in the serverExtras Map by
 		 * specifying Custom Event Data in MoPub's web interface.
 		 */
 		if (!isAppInitialized) {
-			InMobi.initialize(activity, appId);
+			InMobi.initialize(activity, inMobiAppId);
             isAppInitialized = true;
 		}
-		this.iMInterstitial = new IMInterstitial(activity, appId);
+		this.iMInterstitial = new IMInterstitial(activity, inMobiAppId);
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("tp", "c_mopub");

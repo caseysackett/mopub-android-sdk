@@ -101,12 +101,8 @@ class MillennialBanner extends CustomEventBanner {
 
     @Override
     protected void onInvalidate() {
-    	if(mMillennialAdView != null) {
-    		mMillennialAdView.setListener(null);
-    	}
-    	if(mBroadcastReceiver != null) {
-    		mBroadcastReceiver.unregister();
-    	}
+        mMillennialAdView.setListener(null);
+        mBroadcastReceiver.unregister();
     }
 
     class MillennialBroadcastReceiver extends MMBroadcastReceiver {
