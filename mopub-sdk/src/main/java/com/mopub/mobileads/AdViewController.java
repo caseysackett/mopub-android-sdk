@@ -59,7 +59,7 @@ import static com.mopub.mobileads.MoPubView.DEFAULT_LOCATION_PRECISION;
 
 public class AdViewController {
     static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
-    static final int DEFAULT_REFRESH_TIME_MILLISECONDS = 60000;
+    static final int DEFAULT_REFRESH_TIME_MILLISECONDS = 30000;
     private static final FrameLayout.LayoutParams WRAP_AND_CENTER_LAYOUT_PARAMS =
             new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,

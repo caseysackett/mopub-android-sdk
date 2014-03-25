@@ -63,7 +63,7 @@ public class AdConfiguration implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
-    private static final int DEFAULT_REFRESH_TIME_MILLISECONDS = 60000;
+    private static final int DEFAULT_REFRESH_TIME_MILLISECONDS = 30000;
     private static final String mPlatform = "Android";
     private final String mSdkVersion;
 
