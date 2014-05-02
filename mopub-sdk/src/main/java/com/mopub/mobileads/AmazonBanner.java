@@ -9,11 +9,13 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 
+import com.amazon.device.ads.Ad;
 import com.amazon.device.ads.AdError;
 import com.amazon.device.ads.AdLayout;
 import com.amazon.device.ads.AdListener;
 import com.amazon.device.ads.AdProperties;
 import com.amazon.device.ads.AdRegistration;
+import com.amazon.device.ads.AdRequestTargetingOptions;
 import com.amazon.device.ads.AdSize;
 import com.amazon.device.ads.AdTargetingOptions;
 import com.amazon.device.ads.AdTargetingOptions.Gender;
@@ -81,11 +83,14 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
         LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         mAmazonAdView.setLayoutParams(layoutParams);
         
+        AdRequestTargetingOptions adRequestTargetingOptions = new AdRequestTargetingOptions();
+        adRequestTargetingOptions.enableGeoLocation(true);
+        
         AdTargetingOptions adTargetingOptions = new AdTargetingOptions();
         adTargetingOptions.enableGeoLocation(true);
         adTargetingOptions.setGender(Gender.FEMALE);
         
-        mAmazonAdView.loadAd(adTargetingOptions); // async task to retrieve an ad    
+        mAmazonAdView.loadAd(adRequestTargetingOptions, adTargetingOptions); // async task to retrieve an ad    
     }
 
     @Override
@@ -96,26 +101,14 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
     }
 
 	@Override
-	public void onAdCollapsed(AdLayout arg0) {
-		//Log.d("MoPub", "Amazon banner ad modal dismissed.");
-	}
-
-	@Override
-	public void onAdExpanded(AdLayout arg0) {
-	  	if(mBannerListener != null) {
-	  		mBannerListener.onBannerExpanded();
-	  	}
-	}
-
-	@Override
-	public void onAdFailedToLoad(AdLayout arg0, AdError arg1) {
+	public void onAdFailedToLoad(Ad arg0, AdError arg1) {
 	  	if(mBannerListener != null) {
 	  		mBannerListener.onBannerFailed(MoPubErrorCode.NETWORK_NO_FILL);
 	  	}
 	}
 
 	@Override
-	public void onAdLoaded(AdLayout arg0, AdProperties arg1) {
+	public void onAdLoaded(Ad arg0, AdProperties arg1) {
 		if (mAmazonAdView != null && mBannerListener != null) {
 			//Log.d("MoPub", "Amazon banner ad loaded successfully. Showing ad...");
 			mBannerListener.onBannerLoaded(mAmazonAdView);

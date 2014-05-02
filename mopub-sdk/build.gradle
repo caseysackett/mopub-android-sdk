@@ -2,11 +2,12 @@ apply plugin: 'android-library'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+    compile project(':google-play-services_lib')
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "17.0.0"
+    buildToolsVersion "19.0.1"
 
     sourceSets {
         main {
