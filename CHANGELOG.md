@@ -1,3 +1,29 @@
+## Version 2.0 (Apr 22, 2014)
+
+  - **Native Ads** public release; integration instructions and documentation available on the [GitHub wiki](https://github.com/mopub/mopub-android-sdk/wiki/Native-Ads-Integration)
+  - Changed minimum supported Android version to Froyo (Android 2.2, API level 8)
+  - Added support for Google Play Services advertising identifier
+  - Renamed the `com.mopub.mobileads.MraidBrowser` Activity to `com.mopub.common.MoPubBrowser`.
+      - **Important Note:** This change requires a modification to the `AndroidManifest`. The updated set of requisite activity permissions are as follows:
+      
+      	```      	      	
+    <activity android:name="com.mopub.common.MoPubBrowser"
+			android:configChanges="keyboardHidden|orientation"/>
+    <activity android:name="com.mopub.mobileads.MoPubActivity"
+                android:configChanges="keyboardHidden|orientation"/>
+    <activity android:name="com.mopub.mobileads.MraidActivity"
+                android:configChanges="keyboardHidden|orientation"/>
+	<activity android:name="com.mopub.mobileads.MraidVideoPlayerActivity"
+                android:configChanges="keyboardHidden|orientation"/>
+		```  
+  - Upgraded the bundled `android-support-v4` library to r19.1.
+      - **Note for Maven users:** Newer versions of the `android-support-v4` artifact are unavailable on Maven central, so we have included a small script to update the version in your local artifact repository. Please navigate to the `mopub-sdk` directory, and run `scripts/mavenize_support_library`.
+      
+###### Version 2.0.1 (Apr 30, 2014)
+
+  - Fixed cases where VAST Video Interstitials were failing to fire `InterstitialAdListener` callbacks; fixes [GitHub issue #78](https://github.com/mopub/mopub-android-sdk/issues/78)
+  - Simplified click tracking logic for HTML ads
+
 ## Version 1.17 (Nov 20, 2013)
 
   - Support for VAST 2.0 video playback via MoPub Marketplace
@@ -20,6 +46,10 @@
   - Fixed an `IllegalArgumentException` resulting from VAST videos with malformed redirect tags
   - MRAID ads that utilize `mraid.open()` now correctly record a click event
   - Added missing `FLAG_ACTIVITY_NEW_TASK` to `VastVideoView`'s intent creation; fixes part of [GitHub issue #56](https://github.com/mopub/mopub-android-sdk/issues/56)
+  
+###### Version 1.17.3.1 (Mar 24, 2014)
+
+  - Restricted use of methods and fields that require API 4+ (`WebView#removeJavascriptInterface` and `ConnectivityManager`'s connection types)
   
 ### Version 1.17.2 (Feb 20, 2014)
 

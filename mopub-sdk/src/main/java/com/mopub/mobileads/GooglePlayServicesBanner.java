@@ -16,7 +16,7 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.mopub.mobileads.util.Views;
+import com.mopub.common.util.Views;
 
 /*
  * Compatible with version 4.0.30 of the Google Play Services SDK.

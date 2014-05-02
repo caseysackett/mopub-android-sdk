@@ -14,7 +14,8 @@ import com.inmobi.commons.InMobi.LOG_LEVEL;
 import com.inmobi.monetization.IMBanner;
 import com.inmobi.monetization.IMBannerListener;
 import com.inmobi.monetization.IMErrorCode;
-import com.mopub.mobileads.util.Views;
+import com.mopub.common.MoPub;
+import com.mopub.common.util.Views;
 
 /*
  * Tested with InMobi SDK 4.1.1

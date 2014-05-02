@@ -35,6 +35,7 @@ package com.mopub.mobileads;
 import android.app.Activity;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -42,13 +43,14 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import com.mopub.mobileads.util.Dips;
+
+import com.mopub.common.util.Dips;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.mopub.mobileads.AdFetcher.AD_CONFIGURATION_KEY;
-import static com.mopub.mobileads.resource.Drawables.INTERSTITIAL_CLOSE_BUTTON_NORMAL;
-import static com.mopub.mobileads.resource.Drawables.INTERSTITIAL_CLOSE_BUTTON_PRESSED;
+import static com.mopub.common.util.Drawables.INTERSTITIAL_CLOSE_BUTTON_NORMAL;
+import static com.mopub.common.util.Drawables.INTERSTITIAL_CLOSE_BUTTON_PRESSED;
 
 abstract class BaseInterstitialActivity extends Activity {
     enum JavaScriptWebViewCallbacks {
@@ -96,6 +98,8 @@ abstract class BaseInterstitialActivity extends Activity {
         final AdConfiguration adConfiguration = getAdConfiguration();
         if (adConfiguration != null) {
             mBroadcastIdentifier = adConfiguration.getBroadcastIdentifier();
+        } else {
+            Log.d("MoPub", "Unable to obtain broadcast identifier. Interstitial interactions cannot be tracked.");
         }
 
         createInterstitialCloseButton();

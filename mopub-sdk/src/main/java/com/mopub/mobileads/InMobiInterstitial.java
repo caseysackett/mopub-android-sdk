@@ -13,6 +13,7 @@ import com.inmobi.commons.InMobi;
 import com.inmobi.monetization.IMErrorCode;
 import com.inmobi.monetization.IMInterstitial;
 import com.inmobi.monetization.IMInterstitialListener;
+import com.mopub.common.MoPub;
 
 /*
  * Tested with InMobi SDK  4.1.1
