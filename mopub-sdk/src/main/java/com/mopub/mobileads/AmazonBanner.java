@@ -15,10 +15,8 @@ import com.amazon.device.ads.AdLayout;
 import com.amazon.device.ads.AdListener;
 import com.amazon.device.ads.AdProperties;
 import com.amazon.device.ads.AdRegistration;
-import com.amazon.device.ads.AdRequestTargetingOptions;
 import com.amazon.device.ads.AdSize;
 import com.amazon.device.ads.AdTargetingOptions;
-import com.amazon.device.ads.AdTargetingOptions.Gender;
 
 /*
  * Tested with Amazon SDK 4.0.8
@@ -83,14 +81,10 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
         LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         mAmazonAdView.setLayoutParams(layoutParams);
         
-        AdRequestTargetingOptions adRequestTargetingOptions = new AdRequestTargetingOptions();
-        adRequestTargetingOptions.enableGeoLocation(true);
-        
         AdTargetingOptions adTargetingOptions = new AdTargetingOptions();
         adTargetingOptions.enableGeoLocation(true);
-        adTargetingOptions.setGender(Gender.FEMALE);
-        
-        mAmazonAdView.loadAd(adRequestTargetingOptions, adTargetingOptions); // async task to retrieve an ad    
+                
+        mAmazonAdView.loadAd(adTargetingOptions); // async task to retrieve an ad    
     }
 
     @Override
@@ -118,7 +112,22 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
 		}
 	}
 
-	// NOTE: Amazon does not provide an event about leaving the application
-	// If it did, we would call the following in it:
-	//	mBannerListener.onLeaveApplication();
+	@Override
+	public void onAdCollapsed(Ad arg0) {
+        if (mBannerListener != null) {
+        	mBannerListener.onBannerCollapsed();
+        }
+	}
+
+	@Override
+	public void onAdDismissed(Ad arg0) {
+	}
+
+	@Override
+	public void onAdExpanded(Ad arg0) {
+        if (mBannerListener != null) {
+        	mBannerListener.onBannerExpanded();
+        }
+	}
+
 }
