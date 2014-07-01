@@ -103,7 +103,7 @@ import static com.mopub.mobileads.util.Mraids.isInlineVideoAvailable;
 import static com.mopub.mobileads.util.Mraids.isSmsAvailable;
 import static com.mopub.mobileads.util.Mraids.isStorePictureSupported;
 import static com.mopub.mobileads.util.Mraids.isTelAvailable;
-import static com.mopub.mobileads.util.ResponseHeader.LOCATION;
+import static com.mopub.common.util.ResponseHeader.LOCATION;
 
 class MraidDisplayController extends MraidAbstractController {
     private static final String LOGTAG = "MraidDisplayController";

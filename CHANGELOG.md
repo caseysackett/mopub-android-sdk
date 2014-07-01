@@ -1,3 +1,21 @@
+## Version 2.2 (Jun 19, 2014)
+
+  - **Native ads mediation** release; integration instructions and documentation are available on the [GitHub wiki](https://github.com/mopub/mopub-android-sdk/wiki/Integrating-Native-Third-Party-Ad-Networks). Added custom event native implementations to the native extras directory of the SDK (`/extras/src/com/mopub/nativeads`), with initial support for the following networks:
+  	- Facebook Audience Network (`FacebookNative.java`)
+  	- InMobi Native Ads (`InMobiNative.java`)
+  - **Native ads content filtering**: Added the ability to specify which native ad elements you want to receive from the MoPub Marketplace to optimize bandwidth use and download only required assets, via `RequestParameters.Builder#desiredAssets(…)`. This feature only works for the six standard Marketplace assets, found in `RequestParameters.NativeAdAsset`. Any additional elements added in direct sold ads will always be sent down in the extras.
+  - Added star rating information to the `NativeResponse` object, via `NativeResponse#getStarRating()`. This method returns a `Double` corresponding to an app's rating on a 5-star scale.
+  - VAST video quartile and completion trackers now always include the user-agent
+  - Ensured that banners never autorefresh until they have been loaded at least once
+
+## Version 2.1 (May 15, 2014)
+
+  - Added custom events for Facebook ads. `FacebookBanner` and `FacebookInterstitial` can be found in the extras directory of the SDK (`/extras/src/com/mopub/mobileads`). For more information, please see the [help page for Facebook custom events](http://help.mopub.com/customer/portal/articles/1552301-how-to-integrate-facebook-audience-network-using-custom-events).
+  - Significant improvements to video ads
+    - Added overlay including a "Learn More" button, video length, and time left until the video may be skipped
+    - Added support for companion banners (shown upon video completion)
+  - Added Logcat warnings (and Toasts for debug builds) in cases where all necessary Activity permissions haven't been added to the `AndroidManifest`
+
 ## Version 2.0 (Apr 22, 2014)
 
   - **Native Ads** public release; integration instructions and documentation available on the [GitHub wiki](https://github.com/mopub/mopub-android-sdk/wiki/Native-Ads-Integration)
@@ -8,7 +26,7 @@
       
       	```      	      	
     <activity android:name="com.mopub.common.MoPubBrowser"
-			android:configChanges="keyboardHidden|orientation"/>
+				android:configChanges="keyboardHidden|orientation"/>
     <activity android:name="com.mopub.mobileads.MoPubActivity"
                 android:configChanges="keyboardHidden|orientation"/>
     <activity android:name="com.mopub.mobileads.MraidActivity"

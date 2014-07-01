@@ -27,24 +27,12 @@ Integration instructions are available on the [wiki](https://github.com/mopub/mo
 
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for details.
 
-  - **Native Ads** public release; integration instructions and documentation available on the [GitHub wiki](https://github.com/mopub/mopub-android-sdk/wiki/Native-Ads-Integration)
-  - Changed minimum supported Android version to Froyo (Android 2.2, API level 8)
-  - Added support for Google Play Services advertising identifier
-  - Renamed the `com.mopub.mobileads.MraidBrowser` Activity to `com.mopub.common.MoPubBrowser`.
-       - **Important Note:** This change requires a modification to the `AndroidManifest`. The updated set of requisite activity permissions are as follows:
-      
-      	```      	      	
-    <activity android:name="com.mopub.common.MoPubBrowser"
-				android:configChanges="keyboardHidden|orientation"/>
-    <activity android:name="com.mopub.mobileads.MoPubActivity"
-            	android:configChanges="keyboardHidden|orientation"/>
-    <activity android:name="com.mopub.mobileads.MraidActivity"
-            	android:configChanges="keyboardHidden|orientation"/>
-	<activity android:name="com.mopub.mobileads.MraidVideoPlayerActivity"
-            	android:configChanges="keyboardHidden|orientation"/>
-		```  
-  - Upgraded the bundled `android-support-v4` library to r19.1.
-      - **Note for Maven users:** Newer versions of the `android-support-v4` artifact are unavailable on Maven central, so we have included a small script to update the version in your local artifact repository. Please navigate to the `mopub-sdk` directory, and run `scripts/mavenize_support_library`.
+  - **Native ads mediation** release; integration instructions and documentation are available on the [GitHub wiki](https://github.com/mopub/mopub-android-sdk/wiki/Integrating-Native-Third-Party-Ad-Networks). Added custom event native implementations to the native extras directory of the SDK (`/extras/src/com/mopub/nativeads`), with initial support for the following networks:
+  	- Facebook Audience Network (`FacebookNative.java`)
+  	- InMobi Native Ads (`InMobiNative.java`)
+  - **Native ads content filtering**: Added the ability to specify which native ad elements you want to receive from the MoPub Marketplace to optimize bandwidth use and download only required assets, via `RequestParameters.Builder#desiredAssets(…)`. This feature only works for the six standard Marketplace assets, found in `RequestParameters.NativeAdAsset`. Any additional elements added in direct sold ads will always be sent down in the extras.
+  - Added star rating information to the `NativeResponse` object, via `NativeResponse#getStarRating()`. This method returns a `Double` corresponding to an app's rating on a 5-star scale.
+  - Bug fixes
 
 ## Requirements
 
