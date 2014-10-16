@@ -34,9 +34,9 @@ package com.mopub.mobileads;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import com.mopub.common.util.Json;
+import com.mopub.common.logging.MoPubLog;
 import com.mopub.mobileads.CustomEventInterstitial.CustomEventInterstitialListener;
 import com.mopub.mobileads.factories.CustomEventInterstitialFactory;
 
@@ -61,42 +61,43 @@ public class CustomEventInterstitialAdapter implements CustomEventInterstitialLi
     private final Handler mHandler;
     private final Runnable mTimeout;
 
-    public CustomEventInterstitialAdapter(MoPubInterstitial moPubInterstitial, String className, String jsonParams) {
+    public CustomEventInterstitialAdapter(final MoPubInterstitial moPubInterstitial, final String className, final String jsonParams) {
         mHandler = new Handler();
         mMoPubInterstitial = moPubInterstitial;
         mServerExtras = new HashMap<String, String>();
         mLocalExtras = new HashMap<String, Object>();
-        mContext = moPubInterstitial.getActivity();
+        mContext = mMoPubInterstitial.getActivity();
         mTimeout = new Runnable() {
             @Override
             public void run() {
-                Log.d("MoPub", "Third-party network timed out.");
+                MoPubLog.d("Third-party network timed out.");
                 onInterstitialFailed(NETWORK_TIMEOUT);
                 invalidate();
             }
         };
 
-        Log.d("MoPub", "Attempting to invoke custom event: " + className);
+        MoPubLog.d("Attempting to invoke custom event: " + className);
         try {
             mCustomEventInterstitial = CustomEventInterstitialFactory.create(className);
         } catch (Exception exception) {
-            Log.d("MoPub", "Couldn't locate or instantiate custom event: " + className + ".");
-            if (mCustomEventInterstitialAdapterListener != null) mCustomEventInterstitialAdapterListener.onCustomEventInterstitialFailed(ADAPTER_NOT_FOUND);
+            MoPubLog.d("Couldn't locate or instantiate custom event: " + className + ".");
+            mMoPubInterstitial.onCustomEventInterstitialFailed(ADAPTER_NOT_FOUND);
+            return;
         }
-        
+
         // Attempt to load the JSON extras into mServerExtras.
         try {
             mServerExtras = Json.jsonStringToMap(jsonParams);
         } catch (Exception exception) {
-            Log.d("MoPub", "Failed to create Map from JSON: " + jsonParams);
-        }
-        
-        mLocalExtras = moPubInterstitial.getLocalExtras();
-        if (moPubInterstitial.getLocation() != null) {
-            mLocalExtras.put("location", moPubInterstitial.getLocation());
+            MoPubLog.d("Failed to create Map from JSON: " + jsonParams);
         }
 
-        AdViewController adViewController = moPubInterstitial.getMoPubInterstitialView().getAdViewController();
+        mLocalExtras = mMoPubInterstitial.getLocalExtras();
+        if (mMoPubInterstitial.getLocation() != null) {
+            mLocalExtras.put("location", mMoPubInterstitial.getLocation());
+        }
+
+        final AdViewController adViewController = mMoPubInterstitial.getMoPubInterstitialView().getAdViewController();
         if (adViewController != null) {
             mLocalExtras.put(AD_CONFIGURATION_KEY, adViewController.getAdConfiguration());
         }

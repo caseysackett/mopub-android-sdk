@@ -34,8 +34,8 @@ package com.mopub.mobileads;
 
 import android.content.Context;
 import android.location.Location;
+import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.mobileads.factories.CustomEventInterstitialFactory;
-import com.mopub.mobileads.test.support.SdkTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +47,7 @@ import java.util.*;
 
 import static com.mopub.mobileads.CustomEventInterstitial.CustomEventInterstitialListener;
 import static com.mopub.mobileads.MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR;
+import static com.mopub.mobileads.MoPubErrorCode.ADAPTER_NOT_FOUND;
 import static com.mopub.mobileads.MoPubErrorCode.NETWORK_TIMEOUT;
 import static com.mopub.mobileads.MoPubErrorCode.UNSPECIFIED;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -90,6 +91,15 @@ public class CustomEventInterstitialAdapterTest {
 
         interstitialAdapterListener = mock(CustomEventInterstitialAdapter.CustomEventInterstitialAdapterListener.class);
         subject.setAdapterListener(interstitialAdapterListener);
+    }
+
+    @Test
+    public void constructor_withInvalidClassName_shouldCallOnCustomEventInterstitialFailed() throws Exception {
+        // Remove testing mock and use the real thing
+        CustomEventInterstitialFactory.setInstance(new CustomEventInterstitialFactory());
+
+        new CustomEventInterstitialAdapter(moPubInterstitial, "bad_class_name_11i234jb", null);
+        verify(moPubInterstitial).onCustomEventInterstitialFailed(ADAPTER_NOT_FOUND);
     }
 
     @Test

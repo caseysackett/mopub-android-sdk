@@ -34,13 +34,13 @@ package com.mopub.mobileads;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.mopub.common.logging.MoPubLog;
 
-import static com.mopub.mobileads.ViewGestureDetector.UserClickListener;
 import static com.mopub.common.util.VersionCode.ICE_CREAM_SANDWICH;
 import static com.mopub.common.util.VersionCode.currentApiLevel;
+import static com.mopub.mobileads.ViewGestureDetector.UserClickListener;
 
 public class BaseHtmlWebView extends BaseWebView implements UserClickListener {
     private final ViewGestureDetector mViewGestureDetector;
@@ -69,7 +69,7 @@ public class BaseHtmlWebView extends BaseWebView implements UserClickListener {
     public void loadUrl(String url) {
         if (url == null) return;
 
-        Log.d("MoPub", "Loading url: " + url);
+        MoPubLog.d("Loading url: " + url);
         if (url.startsWith("javascript:")) {
             super.loadUrl(url);
         }

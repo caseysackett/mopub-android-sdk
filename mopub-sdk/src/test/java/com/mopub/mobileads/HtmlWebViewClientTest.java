@@ -39,9 +39,8 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.webkit.WebView;
-
 import com.mopub.common.MoPubBrowser;
-import com.mopub.mobileads.test.support.SdkTestRunner;
+import com.mopub.common.test.support.SdkTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

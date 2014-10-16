@@ -42,12 +42,11 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-
+import com.mopub.common.MoPub;
+import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.util.Dips;
-import com.mopub.common.util.MoPubLog;
 import com.mopub.mobileads.factories.AdFetcherFactory;
 import com.mopub.mobileads.factories.HttpClientFactory;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -55,9 +54,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.util.*;
 
 import static android.Manifest.permission.ACCESS_NETWORK_STATE;
-import static com.mopub.common.LocationService.*;
-import static com.mopub.common.GpsHelper.*;
-import static com.mopub.mobileads.MoPubView.DEFAULT_LOCATION_PRECISION;
+import static com.mopub.common.GpsHelper.GpsHelperListener;
+import static com.mopub.common.GpsHelper.asyncFetchAdvertisingInfo;
+import static com.mopub.common.GpsHelper.asyncFetchAdvertisingInfoIfNotCached;
+import static com.mopub.common.LocationService.getLastKnownLocation;
 
 public class AdViewController {
     static final int MINIMUM_REFRESH_TIME_MILLISECONDS = 10000;
@@ -87,9 +87,6 @@ public class AdViewController {
     private boolean mPreviousAutoRefreshSetting = true;
     private String mKeywords;
     private Location mLocation;
-    private LocationAwareness mLocationAwareness = LocationAwareness.NORMAL;
-    private int mLocationPrecision = DEFAULT_LOCATION_PRECISION;
-    private boolean mIsFacebookSupported = true;
     private boolean mIsTesting;
     private boolean mAdWasLoaded;
 
@@ -130,19 +127,21 @@ public class AdViewController {
     public void loadAd() {
         mAdWasLoaded = true;
         if (mAdConfiguration.getAdUnitId() == null) {
-            Log.d("MoPub", "Can't load an ad in this ad view because the ad unit ID is null. " +
+            MoPubLog.d("Can't load an ad in this ad view because the ad unit ID is null. " +
                     "Did you forget to call setAdUnitId()?");
             return;
         }
 
         if (!isNetworkAvailable()) {
-            Log.d("MoPub", "Can't load an ad because there is no network connectivity.");
+            MoPubLog.d("Can't load an ad because there is no network connectivity.");
             scheduleRefreshTimerIfEnabled();
             return;
         }
 
         if (mLocation == null) {
-            mLocation = getLastKnownLocation(mContext, mLocationPrecision, mLocationAwareness);
+            mLocation = getLastKnownLocation(mContext,
+                    MoPub.getLocationPrecision(),
+                    MoPub.getLocationAwareness());
         }
 
         // If we have access to Google Play Services (GPS) but the advertising info
@@ -154,10 +153,10 @@ public class AdViewController {
     void loadNonJavascript(String url) {
         if (url == null) return;
 
-        Log.d("MoPub", "Loading url: " + url);
+        MoPubLog.d("Loading url: " + url);
         if (mIsLoading) {
             if (mAdConfiguration.getAdUnitId() != null) {
-                Log.i("MoPub", "Already loading an ad for " + mAdConfiguration.getAdUnitId() + ", wait to finish.");
+                MoPubLog.i("Already loading an ad for " + mAdConfiguration.getAdUnitId() + ", wait to finish.");
             }
             return;
         }
@@ -170,7 +169,7 @@ public class AdViewController {
     }
 
     public void reload() {
-        Log.d("MoPub", "Reload ad: " + mUrl);
+        MoPubLog.d("Reload ad: " + mUrl);
         loadNonJavascript(mUrl);
     }
 
@@ -180,7 +179,7 @@ public class AdViewController {
         Log.v("MoPub", "MoPubErrorCode: " + (errorCode == null ? "" : errorCode.toString()));
 
         if (mAdConfiguration.getFailUrl() != null) {
-            Log.d("MoPub", "Loading failover url: " + mAdConfiguration.getFailUrl());
+            MoPubLog.d("Loading failover url: " + mAdConfiguration.getFailUrl());
             loadNonJavascript(mAdConfiguration.getFailUrl());
         } else {
             // No other URLs to try, so signal a failure.
@@ -202,14 +201,6 @@ public class AdViewController {
 
     public void setKeywords(String keywords) {
         mKeywords = keywords;
-    }
-
-    public boolean isFacebookSupported() {
-        return mIsFacebookSupported;
-    }
-
-    public void setFacebookSupported(boolean enabled) {
-        mIsFacebookSupported = enabled;
     }
 
     public Location getLocation() {
@@ -244,11 +235,6 @@ public class AdViewController {
 
     public String getClickthroughUrl() {
         return mAdConfiguration.getClickthroughUrl();
-    }
-
-    @Deprecated
-    public void setClickthroughUrl(String clickthroughUrl) {
-        mAdConfiguration.setClickthroughUrl(clickthroughUrl);
     }
 
     public String getRedirectUrl() {
@@ -300,14 +286,6 @@ public class AdViewController {
 
     public void setTesting(boolean enabled) {
         mIsTesting = enabled;
-    }
-
-    int getLocationPrecision() {
-        return mLocationPrecision;
-    }
-
-    void setLocationPrecision(int precision) {
-        mLocationPrecision = Math.max(0, precision);
     }
 
     AdConfiguration getAdConfiguration() {
@@ -372,7 +350,7 @@ public class AdViewController {
                     httpget.addHeader("User-Agent", mAdConfiguration.getUserAgent());
                     httpClient.execute(httpget);
                 } catch (Exception e) {
-                    Log.d("MoPub", "Impression tracking failed : " + mAdConfiguration.getImpressionUrl(), e);
+                    MoPubLog.d("Impression tracking failed : " + mAdConfiguration.getImpressionUrl(), e);
                 } finally {
                     httpClient.getConnectionManager().shutdown();
                 }
@@ -387,12 +365,12 @@ public class AdViewController {
 
                 DefaultHttpClient httpClient = HttpClientFactory.create();
                 try {
-                    Log.d("MoPub", "Tracking click for: " + mAdConfiguration.getClickthroughUrl());
+                    MoPubLog.d("Tracking click for: " + mAdConfiguration.getClickthroughUrl());
                     HttpGet httpget = new HttpGet(mAdConfiguration.getClickthroughUrl());
                     httpget.addHeader("User-Agent", mAdConfiguration.getUserAgent());
                     httpClient.execute(httpget);
                 } catch (Exception e) {
-                    Log.d("MoPub", "Click tracking failed: " + mAdConfiguration.getClickthroughUrl(), e);
+                    MoPubLog.d("Click tracking failed: " + mAdConfiguration.getClickthroughUrl(), e);
                 } finally {
                     httpClient.getConnectionManager().shutdown();
                 }
@@ -415,13 +393,12 @@ public class AdViewController {
         return mUrlGenerator
                 .withAdUnitId(mAdConfiguration.getAdUnitId())
                 .withKeywords(mKeywords)
-                .withFacebookSupported(mIsFacebookSupported)
                 .withLocation(mLocation)
                 .generateUrlString(getServerHostname());
     }
 
     void adDidFail(MoPubErrorCode errorCode) {
-        Log.i("MoPub", "Ad failed to load.");
+        MoPubLog.i("Ad failed to load.");
         setNotLoading();
         scheduleRefreshTimerIfEnabled();
         getMoPubView().adFailed(errorCode);
@@ -527,4 +504,23 @@ public class AdViewController {
     public void customEventActionWillBegin() {
         registerClick();
     }
+
+    @Deprecated
+    public void setClickthroughUrl(String clickthroughUrl) {
+        mAdConfiguration.setClickthroughUrl(clickthroughUrl);
+    }
+
+    /**
+     * @deprecated As of release 2.4
+     */
+    @Deprecated
+    public boolean isFacebookSupported() {
+        return false;
+    }
+
+    /**
+     * @deprecated As of release 2.4
+     */
+    @Deprecated
+    public void setFacebookSupported(boolean enabled) {}
 }

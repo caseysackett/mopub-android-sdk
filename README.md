@@ -27,17 +27,13 @@ Integration instructions are available on the [wiki](https://github.com/mopub/mo
 
 Please view the [changelog](https://github.com/mopub/mopub-android-sdk/blob/master/CHANGELOG.md) for details.
 
-  - **Improved impression tracking for Native Ads** Impression tracking for native ads is now more accurate and more efficient.
+  - **Updated Facebook SDK Compatibility to 3.18.1**
 
-  - **Streamlined Maven Build and Dependencies** MoPub's Android SDK now depends on the Android v4 Support Library shipped with the Android Build tools. The MoPub Sample App also depends on Google Play Services to use the Android Advertising ID. We recommend building against Play Services in your app as well. For integration instructions, see the [wiki](https://github.com/mopub/mopub-android-sdk/wiki/Getting-Started).
-
-  - **Updated Third-Party Network Compatibility** MoPub's provided Custom Events (included in the extras/ folder) are now compatible with the latest SDK releases from Millennial Media (5.3.0), Vungle (3.1.0), and InMobi (4.4.1), Google Play Services (5.0.77).
-
-  - Bug fixes
+  - **Updated API for Native Ads Custom Event writers**
 
 ## Requirements
 
-Android 2.2 and up
+Android 2.3.1 (API Version 9) and up
 
 ## License
 
