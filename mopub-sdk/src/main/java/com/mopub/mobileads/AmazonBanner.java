@@ -48,13 +48,6 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
             return;
         }
         
-        int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
-        AdSize adSize = AdSize.SIZE_320x50;
-        if(widthPixels == 600) adSize = AdSize.SIZE_600x90; 	// Kindle Fire
-        if(widthPixels == 800) adSize = AdSize.SIZE_600x90; 	// Kindle Fire HD 7"
-        if(widthPixels == 728) adSize = AdSize.SIZE_728x90;		// Only if it matches exactly, since 728 scrolls on 800px wide Kindle Fire HD 7"
-        if(widthPixels >= 1024) adSize = AdSize.SIZE_1024x50; 	// Kindle Fire HD
-        
         String appId = serverExtras.get("app_id");
         if(appId == null) {
         	try {
@@ -76,9 +69,9 @@ public class AmazonBanner extends CustomEventBanner implements AdListener {
         //AdRegistration.enableTesting(true);
         //AdRegistration.enableLogging(true);
         
-        mAmazonAdView = new AdLayout(activity, adSize);
+        mAmazonAdView = new AdLayout(activity);
         mAmazonAdView.setListener(this);
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         mAmazonAdView.setLayoutParams(layoutParams);
         
         AdTargetingOptions adTargetingOptions = new AdTargetingOptions();
