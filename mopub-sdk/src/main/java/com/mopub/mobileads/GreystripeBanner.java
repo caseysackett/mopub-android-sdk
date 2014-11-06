@@ -1,21 +1,21 @@
 package com.mopub.mobileads;
 
+import java.util.Map;
+
 import android.content.Context;
 import android.util.Log;
+
 import com.greystripe.sdk.GSAd;
 import com.greystripe.sdk.GSAdErrorCode;
 import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSMobileBannerAdView;
-import com.mopub.mobileads.CustomEventBanner;
-import com.mopub.mobileads.MoPubErrorCode;
-
-import java.util.*;
+import com.greystripe.sdk.core.mraid.AdPosition;
 
 /*
- * Tested with Greystripe SDK 2.3.0.
+ * Tested with Greystripe SDK 2.4.0.
  */
 class GreystripeBanner extends CustomEventBanner implements GSAdListener {
-    public static final String DEFAULT_GREYSTRIPE_APP_ID = "YOUR_GREYSTRIPE_APP_ID";
+	public static final String DEFAULT_GREYSTRIPE_APP_ID = "YOUR_GREYSTRIPE_APP_ID";
 
     private CustomEventBannerListener mBannerListener;
     private GSMobileBannerAdView mGreystripeAd;
@@ -75,10 +75,18 @@ class GreystripeBanner extends CustomEventBanner implements GSAdListener {
     }
 
     @Override
-    public void onAdCollapse(GSAd greystripeAd) {
+    public void onAdCollapse(final GSAd greystripeAd) {
+        Log.d("MoPub", "Greystripe banner ad collapsed.");
+        mBannerListener.onBannerCollapsed();
     }
 
     @Override
-    public void onAdExpansion(GSAd greystripeAd) {
+    public void onAdExpansion(final GSAd greystripeAd) {
+        Log.d("MoPub", "Greystripe banner ad expanded.");
+        mBannerListener.onBannerExpanded();
     }
+
+	@Override
+	public void onAdResize(GSAd arg0, int arg1, int arg2, int arg3, int arg4) {
+	}
 }

@@ -1,18 +1,17 @@
 package com.mopub.mobileads;
 
+import java.util.Map;
+
 import android.content.Context;
 import android.util.Log;
+
 import com.greystripe.sdk.GSAd;
 import com.greystripe.sdk.GSAdErrorCode;
 import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSFullscreenAd;
-import com.mopub.mobileads.CustomEventInterstitial;
-import com.mopub.mobileads.MoPubErrorCode;
-
-import java.util.*;
 
 /*
- * Tested with Greystripe SDK 2.3.0.
+ * Tested with Greystripe SDK 2.4.0.
  */
 class GreystripeInterstitial extends CustomEventInterstitial implements GSAdListener {
     public static final String DEFAULT_GREYSTRIPE_APP_ID = "YOUR_GREYSTRIPE_APP_ID";
@@ -24,8 +23,10 @@ class GreystripeInterstitial extends CustomEventInterstitial implements GSAdList
      * Abstract methods from CustomEventInterstitial
      */
     @Override
-    protected void loadInterstitial(Context context, CustomEventInterstitialListener interstitialListener,
-                                    Map<String, Object> localExtras, Map<String, String> serverExtras) {
+    protected void loadInterstitial(final Context context,
+                                    final CustomEventInterstitialListener interstitialListener,
+                                    final Map<String, Object> localExtras,
+                                    final Map<String, String> serverExtras) {
         mInterstitialListener = interstitialListener;
 
         /*
@@ -61,7 +62,7 @@ class GreystripeInterstitial extends CustomEventInterstitial implements GSAdList
      * GSAdListener implementation
      */
     @Override
-    public void onAdClickthrough(GSAd greystripeAd) {
+    public void onAdClickthrough(final GSAd greystripeAd) {
         Log.d("MoPub", "Greystripe interstitial ad clicked.");
         mInterstitialListener.onInterstitialClicked();
 
@@ -74,19 +75,19 @@ class GreystripeInterstitial extends CustomEventInterstitial implements GSAdList
     }
 
     @Override
-    public void onAdDismissal(GSAd greystripeAd) {
+    public void onAdDismissal(final GSAd greystripeAd) {
         Log.d("MoPub", "Greystripe interstitial ad dismissed.");
         mInterstitialListener.onInterstitialDismissed();
     }
 
     @Override
-    public void onFailedToFetchAd(GSAd greystripeAd, GSAdErrorCode errorCode) {
+    public void onFailedToFetchAd(final GSAd greystripeAd, final GSAdErrorCode errorCode) {
         Log.d("MoPub", "Greystripe interstitial ad failed to load.");
         mInterstitialListener.onInterstitialFailed(MoPubErrorCode.NETWORK_NO_FILL);
     }
 
     @Override
-    public void onFetchedAd(GSAd greystripeAd) {
+    public void onFetchedAd(final GSAd greystripeAd) {
         if (mGreystripeAd != null && mGreystripeAd.isAdReady()) {
             Log.d("MoPub", "Greysripe interstitial ad loaded successfully.");
             mInterstitialListener.onInterstitialLoaded();
@@ -96,10 +97,14 @@ class GreystripeInterstitial extends CustomEventInterstitial implements GSAdList
     }
 
     @Override
-    public void onAdCollapse(GSAd greystripeAd) {
+    public void onAdCollapse(final GSAd greystripeAd) {
     }
 
     @Override
-    public void onAdExpansion(GSAd greystripeAd) {
+    public void onAdExpansion(final GSAd greystripeAd) {
     }
+    
+	@Override
+	public void onAdResize(GSAd arg0, int arg1, int arg2, int arg3, int arg4) {
+	}
 }
