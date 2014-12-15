@@ -9,7 +9,6 @@ import com.greystripe.sdk.GSAd;
 import com.greystripe.sdk.GSAdErrorCode;
 import com.greystripe.sdk.GSAdListener;
 import com.greystripe.sdk.GSMobileBannerAdView;
-import com.greystripe.sdk.core.mraid.AdPosition;
 
 /*
  * Tested with Greystripe SDK 2.4.0.

@@ -1,14 +1,5 @@
 package com.mopub.mobileads;
 
-import static com.google.android.gms.ads.AdSize.BANNER;
-import static com.google.android.gms.ads.AdSize.FULL_BANNER;
-import static com.google.android.gms.ads.AdSize.LEADERBOARD;
-import static com.google.android.gms.ads.AdSize.MEDIUM_RECTANGLE;
-import static com.mopub.mobileads.MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR;
-import static com.mopub.mobileads.MoPubErrorCode.NETWORK_NO_FILL;
-
-import java.util.Map;
-
 import android.content.Context;
 import android.util.Log;
 
@@ -18,9 +9,21 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.mopub.common.util.Views;
 
+import java.util.Map;
+
+import static com.google.android.gms.ads.AdSize.BANNER;
+import static com.google.android.gms.ads.AdSize.FULL_BANNER;
+import static com.google.android.gms.ads.AdSize.LEADERBOARD;
+import static com.google.android.gms.ads.AdSize.MEDIUM_RECTANGLE;
+import static com.mopub.mobileads.MoPubErrorCode.ADAPTER_CONFIGURATION_ERROR;
+import static com.mopub.mobileads.MoPubErrorCode.NETWORK_NO_FILL;
+
 /*
- * Compatible with version 4.0.30 of the Google Play Services SDK.
+ * Compatible with version 5.0.89 of the Google Play Services SDK.
  */
+
+// Note: AdMob ads will now use this class as Google has deprecated the AdMob SDK.
+
 class GooglePlayServicesBanner extends CustomEventBanner {
     /*
      * These keys are intended for MoPub internal use. Do not modify.
@@ -35,15 +38,14 @@ class GooglePlayServicesBanner extends CustomEventBanner {
 
     @Override
     protected void loadBanner(
-            Context context,
-            CustomEventBannerListener customEventBannerListener,
-            Map<String, Object> localExtras,
-            Map<String, String> serverExtras) {
+            final Context context,
+            final CustomEventBannerListener customEventBannerListener,
+            final Map<String, Object> localExtras,
+            final Map<String, String> serverExtras) {
         mBannerListener = customEventBannerListener;
-
-        String adUnitId;
-        int adWidth;
-        int adHeight;
+        final String adUnitId;
+        final int adWidth;
+        final int adHeight;
 
         if (extrasAreValid(serverExtras)) {
             adUnitId = serverExtras.get(AD_UNIT_ID_KEY);
@@ -58,7 +60,7 @@ class GooglePlayServicesBanner extends CustomEventBanner {
         mGoogleAdView.setAdListener(new AdViewListener());
         mGoogleAdView.setAdUnitId(adUnitId);
 
-        AdSize adSize = calculateAdSize(adWidth, adHeight);
+        final AdSize adSize = calculateAdSize(adWidth, adHeight);
         if (adSize == null) {
             mBannerListener.onBannerFailed(ADAPTER_CONFIGURATION_ERROR);
             return;
@@ -66,9 +68,14 @@ class GooglePlayServicesBanner extends CustomEventBanner {
 
         mGoogleAdView.setAdSize(adSize);
 
-        AdRequest adRequest = new AdRequest.Builder().build();
+        final AdRequest adRequest = new AdRequest.Builder().build();
 
-        mGoogleAdView.loadAd(adRequest);
+        try {
+            mGoogleAdView.loadAd(adRequest);
+        } catch (NoClassDefFoundError e) {
+            // This can be thrown by Play Services on Honeycomb.
+            mBannerListener.onBannerFailed(NETWORK_NO_FILL);
+        }
     }
 
     @Override
